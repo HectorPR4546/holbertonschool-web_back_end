@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Task 1's module."""
+"""Module for asynchronous comprehensions."""
 
 import asyncio
 from typing import List
