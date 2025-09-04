@@ -14,6 +14,9 @@ process.stdin.on('data', (data) => {
   const input = str.split(/\r?\n/)[0];
   console.log(`Your name is: ${input}`);
   responded = true;
+  if (process.stdin.isTTY) {
+    process.exit(0);
+  }
 });
 
 process.stdin.on('end', () => {
