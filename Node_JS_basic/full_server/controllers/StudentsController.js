@@ -1,40 +1,43 @@
 import readDatabase from '../utils';
 
 class StudentsController {
-  static async getAllStudents(req, res) {
-    const dbPath = process.argv[2];
-    const header = 'This is the list of our students';
-    try {
-      const groups = await readDatabase(dbPath);
-      const fields = Object
-        .keys(groups)
-        .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-      const total = fields.reduce((acc, f) => acc + (groups[f] ? groups[f].length : 0), 0);
-      const lines = [header, `Number of students: ${total}`];
-      fields.forEach((field) => {
-        const list = groups[field];
-        lines.push(`Number of students in ${field}: ${list.length}. List: ${list.join(', ')}`);
+  static getAllStudents(req, res) {
+    const filePath = process.argv[2];
+
+    readDatabase(filePath)
+      .then((data) => {
+        let response = 'This is the list of our students';
+
+        Object.keys(data).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+          .forEach((field) => {
+            const list = data[field].join(', ');
+            response += `\nNumber of students in ${field}: ${data[field].length}. List: ${list}`;
+          });
+
+        res.status(200).send(response);
+      })
+      .catch((err) => {
+        res.status(500).send(err.message);
       });
-      res.status(200).type('text/plain').send(lines.join('\n'));
-    } catch (err) {
-      res.status(500).type('text/plain').send('Cannot load the database');
-    }
   }
 
-  static async getAllStudentsByMajor(req, res) {
+  static getAllStudentsByMajor(req, res) {
+    const filePath = process.argv[2];
     const { major } = req.params;
+
     if (major !== 'CS' && major !== 'SWE') {
-      res.status(500).type('text/plain').send('Major parameter must be CS or SWE');
+      res.status(500).send('Major parameter must be CS or SWE');
       return;
     }
-    const dbPath = process.argv[2];
-    try {
-      const groups = await readDatabase(dbPath);
-      const list = groups[major] || [];
-      res.status(200).type('text/plain').send(`List: ${list.join(', ')}`);
-    } catch (err) {
-      res.status(500).type('text/plain').send('Cannot load the database');
-    }
+
+    readDatabase(filePath)
+      .then((data) => {
+        const list = data[major];
+        res.status(200).send(`List: ${list.join(', ')}`);
+      })
+      .catch((err) => {
+        res.status(500).send(err.message);
+      });
   }
 }
 
