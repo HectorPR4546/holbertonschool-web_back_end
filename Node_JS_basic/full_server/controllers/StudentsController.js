@@ -9,7 +9,8 @@ class StudentsController {
       const fields = Object
         .keys(groups)
         .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-      const lines = [header];
+      const total = fields.reduce((acc, f) => acc + (groups[f] ? groups[f].length : 0), 0);
+      const lines = [header, `Number of students: ${total}`];
       fields.forEach((field) => {
         const list = groups[field];
         lines.push(`Number of students in ${field}: ${list.length}. List: ${list.join(', ')}`);
